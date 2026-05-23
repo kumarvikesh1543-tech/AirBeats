@@ -78,21 +78,61 @@ fun shimmerEffect(): Brush {
 // ==================== USER CARD ====================
 
 @Composable
+fun SocialIconBadge(
+    iconRes: Int,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .size(32.dp)
+            .clip(CircleShape)
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+            .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f), CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painter = painterResource(id = iconRes),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(16.dp)
+        )
+    }
+}
+
+@Composable
 fun UserCard(
     imageUrl: String,
     name: String,
     role: String,
+    githubUrl: String? = null,
+    telegramUrl: String? = null,
+    instagramUrl: String? = null,
+    websiteUrl: String? = null,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     var isPressed by remember { mutableStateOf(false) }
 
+    val borderBrush = Brush.linearGradient(
+        colors = listOf(
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+            MaterialTheme.colorScheme.secondary.copy(alpha = 0.8f),
+            MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f)
+        )
+    )
+
     Card(
         modifier = modifier
-            .padding(horizontal = 8.dp, vertical = 8.dp)
-            .height(180.dp)
+            .padding(horizontal = 6.dp, vertical = 8.dp)
+            .height(240.dp)
             .scale(if (isPressed) 0.98f else 1f)
-            .shadow(8.dp, RoundedCornerShape(24.dp))
+            .shadow(12.dp, RoundedCornerShape(24.dp))
+            .border(
+                width = 1.dp,
+                brush = borderBrush,
+                shape = RoundedCornerShape(24.dp)
+            )
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null
@@ -111,53 +151,95 @@ fun UserCard(
                 .fillMaxSize()
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Avatar - Centered at top
-            Box(
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(CircleShape)
-                    .background(
-                        Brush.radialGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                                MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Avatar - Centered at top
+                Box(
+                    modifier = Modifier
+                        .size(76.dp)
+                        .clip(CircleShape)
+                        .background(
+                            Brush.radialGradient(
+                                colors = listOf(
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)
+                                )
                             )
                         )
+                        .border(1.5.dp, borderBrush, CircleShape)
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(imageUrl)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
                     )
-                    .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
-            ) {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(imageUrl)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(CircleShape),
-                    contentScale = ContentScale.Crop
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Text - Centered
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text(
+                    text = role,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Text - Centered
-            Text(
-                text = name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.9f)
-            )
-            
-            Spacer(modifier = Modifier.height(2.dp))
-            
-            Text(
-                text = role,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-            )
+            // Social Badges Row at the bottom of the card
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                val contextUriHandler = LocalUriHandler.current
+                if (githubUrl != null) {
+                    SocialIconBadge(
+                        iconRes = R.drawable.github,
+                        onClick = { contextUriHandler.openUri(githubUrl) }
+                    )
+                }
+                if (telegramUrl != null) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    SocialIconBadge(
+                        iconRes = R.drawable.telegram,
+                        onClick = { contextUriHandler.openUri(telegramUrl) }
+                    )
+                }
+                if (instagramUrl != null) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    SocialIconBadge(
+                        iconRes = R.drawable.instagram,
+                        onClick = { contextUriHandler.openUri(instagramUrl) }
+                    )
+                }
+                if (websiteUrl != null) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    SocialIconBadge(
+                        iconRes = R.drawable.resource_public,
+                        onClick = { contextUriHandler.openUri(websiteUrl) }
+                    )
+                }
+            }
         }
     }
 }
@@ -509,6 +591,10 @@ fun AboutScreen(
                             imageUrl = "https://avatars.githubusercontent.com/u/218248866",
                             name = "Darkboy",
                             role = "Lead Developer",
+                            githubUrl = "https://github.com/d0x-dev",
+                            telegramUrl = "https://t.me/songpy",
+                            instagramUrl = "https://instagram.com/dark__336",
+                            websiteUrl = "https://darkboy.pro",
                             modifier = Modifier.weight(1f),
                             onClick = { uriHandler.openUri("https://darkboy.pro") }
                         )
@@ -517,6 +603,8 @@ fun AboutScreen(
                             imageUrl = "https://avatars.githubusercontent.com/u/227567962",
                             name = "Venom",
                             role = "UI/UX Specialist",
+                            githubUrl = "https://github.com/drkvenom786",
+                            websiteUrl = "https://venomx.pro",
                             modifier = Modifier.weight(1f),
                             onClick = { uriHandler.openUri("https://drkvenom786.github.io/webpage/") }
                         )

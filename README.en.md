@@ -374,7 +374,7 @@ Special thanks to the following contributors and supporters:
 
 ## License
 
-**Copyright © 2025 Arturo Cervantes**
+**Copyright © 2025-2026 Darkboy & Venom**
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
@@ -392,7 +392,7 @@ This program is distributed in the hope that it will be useful, but **WITHOUT AN
 
 <div align="center">
   <p><strong>© 2023-2024 Open Source Projects</strong></p>
-  <p>Developed with passion by <a href="https://github.com/darkxvenom/airbeats">Arturo Cervantes</a></p>
+  <p>Developed with passion by <a href="https://github.com/d0x-dev">Darkboy</a> & <a href="https://github.com/drkvenom786">Venom</a></p>
   
   <br>
   

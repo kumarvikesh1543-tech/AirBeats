@@ -1,49 +1,77 @@
-# Código de Conducta
+# Contributor Covenant Code of Conduct
 
-## Nuestro Compromiso
+## Our Pledge
 
-En el interés de fomentar un ambiente abierto y acogedor, nosotros como colaboradores y mantenedores nos comprometemos a hacer de la participación en nuestro proyecto y nuestra comunidad una experiencia libre de acoso para todos, independientemente de la edad, dimensión corporal, discapacidad, etnia, identidad y expresión de género, nivel de experiencia, nacionalidad, apariencia personal, raza, religión, o identidad y orientación sexual.
+We as members, contributors, and leaders pledge to make participation in our
+community a harassment-free experience for everyone, regardless of age, body
+size, visible or invisible disability, ethnicity, sex characteristics, gender
+identity and expression, level of experience, education, socio-economic status,
+nationality, personal appearance, race, caste, color, religion, or sexual
+identity and orientation.
 
-## Nuestros Estándares
+We pledge to act and interact in ways that contribute to an open, welcoming,
+diverse, inclusive, and healthy community.
 
-Ejemplos de comportamiento que contribuyen a crear un ambiente positivo:
+## Our Standards
 
-* Uso de lenguaje amable e inclusivo
-* Respeto a diferentes puntos de vista y experiencias
-* Aceptación de críticas constructivas
-* Enfocarse en lo que es mejor para la comunidad
-* Mostrar empatía hacia otros miembros de la comunidad
+Examples of behavior that contributes to a positive environment for our
+community include:
 
-Ejemplos de comportamiento inaceptable:
+* Demonstrating empathy and kindness toward other people
+* Being respectful of differing opinions, viewpoints, and experiences
+* Giving and gracefully receiving constructive feedback
+* Accepting responsibility and apologizing to those affected by our mistakes,
+  and learning from the experience
+* Focusing on what is best for the overall community
 
-* Uso de lenguaje o imágenes sexuales y atención o insinuaciones sexuales no deseadas
-* Comentarios despectivos (_trolling_), insultantes o derogatorios, y ataques personales o políticos
-* Acoso público o privado
-* Publicación de información privada de terceros sin su consentimiento, como direcciones físicas o electrónicas
-* Conducta que podría ser considerada inapropiada en un entorno profesional
+Examples of unacceptable behavior include:
 
-## Nuestras Responsabilidades
+* The use of sexualized language or imagery, and unwelcome sexual attention or
+  advances
+* Trolling, insulting or derogatory comments, and personal or political attacks
+* Public or private harassment
+* Publishing others' private information, such as a physical or email
+  address, without their explicit permission
+* Other conduct which could reasonably be considered inappropriate in a
+  professional setting
 
-Los mantenedores del proyecto son responsables de clarificar los estándares de comportamiento aceptable y se espera que tomen medidas correctivas y apropiadas en respuesta a situaciones de conducta inaceptable.
+## Enforcement Responsibilities
 
-Los mantenedores del proyecto tienen el derecho y la responsabilidad de eliminar, editar o rechazar comentarios, _commits_, código, ediciones de documentación, _issues_, y otras contribuciones que no estén alineadas con este Código de Conducta, o de prohibir temporal o permanentemente a cualquier colaborador cuyo comportamiento sea inapropiado, amenazante, ofensivo o perjudicial.
+Community leaders (Darkboy and Venom) are responsible for clarifying and enforcing our standards of
+acceptable behavior and will take appropriate and fair corrective action in
+response to any behavior that they deem inappropriate, threatening, offensive,
+or harmful.
 
-## Alcance
+Community leaders have the right and responsibility to remove, edit, or reject
+comments, commits, code, wiki edits, issues, and other contributions that are
+not aligned to this Code of Conduct, and will communicate reasons for moderation
+decisions when appropriate.
 
-Este código de conducta aplica tanto a espacios del proyecto como a espacios públicos donde un individuo esté en representación del proyecto o comunidad. Ejemplos de esto incluyen el uso de la cuenta oficial de correo electrónico, publicaciones a través de las redes sociales oficiales, o presentaciones con personas designadas en eventos en línea o no. La representación del proyecto puede ser clarificada explícitamente por los mantenedores del proyecto.
+## Scope
 
-## Aplicación
+This Code of Conduct applies within all community spaces, and also applies when
+an individual is officially representing the community in public spaces.
+Examples of representing our community include using an official e-mail address,
+posting via an official social media account, or acting as an appointed
+representative at an online or offline event.
 
-Ejemplos de abuso, acoso u otro tipo de comportamiento inaceptable pueden ser reportados al equipo del proyecto en [cervantesdarkxvenom@gmail.com](mailto:cervantesdarkxvenom@gmail.com). Todas las quejas serán revisadas e investigadas, generando un resultado apropiado a las circunstancias. El equipo del proyecto está obligado a mantener la confidencialidad de la persona que reporta el incidente. Detalles específicos acerca de las políticas de aplicación pueden ser publicadas por separado.
+## Enforcement
 
-Los mantenedores del proyecto que no sigan o que no hagan cumplir este Código de Conducta pueden ser eliminados de forma temporal o permanente del equipo del proyecto.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be
+reported to the community leaders at [cervantesdarkxvenom@gmail.com](mailto:cervantesdarkxvenom@gmail.com).
+All complaints will be reviewed and investigated promptly and fairly.
 
-## Atribución
+All community leaders are obligated to respect the privacy and security of the
+reporter of any incident.
 
-Este Código de Conducta es una adaptación del [Contributor Covenant][homepage], versión 2.0,
-disponible en https://www.contributor-covenant.org/es/version/2/0/code_of_conduct.html
+## Attribution
+
+This Code of Conduct is adapted from the [Contributor Covenant][homepage],
+version 2.1, available at
+[https://www.contributor-covenant.org/version/2/1/code_of_conduct.html][version].
+
+Community Impact Guidelines were inspired by
+[Mozilla's code of conduct enforcement ladder](https://github.com/mozilla/diversity).
 
 [homepage]: https://www.contributor-covenant.org
-
-Para respuestas a las preguntas frecuentes acerca de este código de conducta, consulta las FAQ en
-https://www.contributor-covenant.org/faq
+[version]: https://www.contributor-covenant.org/version/2/1/code_of_conduct.html
