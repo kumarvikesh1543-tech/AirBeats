@@ -600,7 +600,7 @@ fun AboutScreen(
                         )
 
                         UserCard(
-                            imageUrl = "https://avatars.githubusercontent.com/u/227567962",
+                            imageUrl = "https://avatars.githubusercontent.com/u/241423835",
                             name = "Venom",
                             role = "UI/UX Specialist",
                             githubUrl = "https://github.com/drkvenom786",

@@ -39,7 +39,7 @@ We are a group of developers dedicated to bringing you the best music experience
   * **Website**: [venomx.pro](http://venomx.pro)
   * **Web Portfolio**: [venomx portfolio](https://drkvenom786.github.io/webpage/)
   * **Avatar**: 
-    <img src="https://avatars.githubusercontent.com/u/227567962" width="80" style="border-radius: 50%"/>
+    <img src="https://avatars.githubusercontent.com/u/241423835" width="80" style="border-radius: 50%"/>
 
 ---
 
