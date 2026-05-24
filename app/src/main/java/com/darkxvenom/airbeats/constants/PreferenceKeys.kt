@@ -302,6 +302,7 @@ val LyricsClickKey = booleanPreferencesKey("lyricsClick")
 val TranslateLyricsKey = booleanPreferencesKey("translateLyrics")
 
 val PlayerVolumeKey = floatPreferencesKey("playerVolume")
+val EqualizerEnabledKey = booleanPreferencesKey("equalizerEnabled")
 val RepeatModeKey = intPreferencesKey("repeatMode")
 val PlayerButtonsStyleKey = stringPreferencesKey("player_buttons_style")
 

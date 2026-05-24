@@ -114,20 +114,6 @@ fun MiniPlayer(
     val canSkipNext by playerConnection.canSkipNext.collectAsState()
     val canSkipPrevious by playerConnection.canSkipPrevious.collectAsState()
     val currentSong by playerConnection.currentSong.collectAsState(initial = null)
-    val playerScreenStyle by rememberEnumPreference(
-        PlayerScreenStyleKey,
-        defaultValue = PlayerScreenStyle.CLASSIC
-    )
-
-    if (playerScreenStyle == PlayerScreenStyle.MODERN) {
-        ModernMiniPlayer(
-            position = position,
-            duration = duration,
-            modifier = modifier,
-        )
-        return
-    }
-
     // Obtener el estado del tema para calcular el color de fondo correcto
     val isSystemInDarkTheme = isSystemInDarkTheme()
     val darkTheme by rememberEnumPreference(DarkModeKey, defaultValue = DarkMode.AUTO)

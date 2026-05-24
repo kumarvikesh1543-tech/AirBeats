@@ -23,6 +23,7 @@ import com.darkxvenom.airbeats.extensions.getQueueWindows
 import com.darkxvenom.airbeats.extensions.metadata
 import com.darkxvenom.airbeats.playback.MusicService.MusicBinder
 import com.darkxvenom.airbeats.playback.queues.Queue
+import com.darkxvenom.airbeats.utils.ListenTogetherSync
 import com.darkxvenom.airbeats.utils.reportException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -174,6 +175,7 @@ class PlayerConnection(
         player.addListener(this)
         initializeStates()
         startProgressUpdates()
+        ListenTogetherSync.start(context, this)
 
         instance = this
 

@@ -94,6 +94,7 @@
 
     <!-- Menu -->
     <string name="details">Details</string>
+    <string name="now_playing">Now Playing</string>
     <string name="edit">Edit</string>
     <string name="start_radio">Start radio</string>
     <string name="play">Play</string>
@@ -346,6 +347,28 @@
     <string name="auto_skip_next_on_error_desc">Ensure your continuous playback experience</string>
     <string name="stop_music_on_task_clear">Stop music on task clear</string>
     <string name="equalizer">Equalizer</string>
+    <string name="equalizer_in_app_description">Shape the current playback inside AirBeats.</string>
+    <string name="equalizer_unavailable">Equalizer will be available after playback starts.</string>
+    <string name="audio_effects">Audio effects</string>
+    <string name="listen_together">Listen Together</string>
+    <string name="listen_together_description">Create a cloud session or join by code to keep playback synced with friends anywhere.</string>
+    <string name="display_name">Display name</string>
+    <string name="create_session">Create session</string>
+    <string name="join_session">Join session</string>
+    <string name="session_code">Session code</string>
+    <string name="listen_together_code">Listen Together code</string>
+    <string name="copy_session_code">Copy session code</string>
+    <string name="session_code_copied">Session code copied</string>
+    <string name="leave_session">Leave</string>
+    <string name="left_session">Left session</string>
+    <string name="session_users">Users in session</string>
+    <string name="created_by_name">Created by %1$s</string>
+    <string name="session_created">Session created</string>
+    <string name="joined_session">Joined session</string>
+    <string name="no_active_session">No active session</string>
+    <string name="hosting_session">Hosting %1$s</string>
+    <string name="joined_session_with_code">Joined %1$s</string>
+    <string name="play_song_first">Play a song first to host a session</string>
 
     <string name="storage">Storage</string>
     <string name="cache">Cache</string>

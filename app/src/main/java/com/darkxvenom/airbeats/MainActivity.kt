@@ -118,6 +118,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.BlurredEdgeTreatment
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
@@ -1783,13 +1784,18 @@ fun HeadphoneSplashScreen() {
                 this.alpha = alpha
             }
         ) {
-            Image(
-                painter = painterResource(R.drawable.airbeats_logo),
-                contentDescription = null,
-                modifier = Modifier.size(220.dp)
-            )
-
-            Spacer(modifier = Modifier.height(30.dp))
+            Box(
+                modifier = Modifier
+                    .width(220.dp)
+                    .height(145.dp)
+                    .clipToBounds()
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.airbeats_logo),
+                    contentDescription = null,
+                    modifier = Modifier.size(220.dp)
+                )
+            }
 
             Text(
                 text = "AirBeats",

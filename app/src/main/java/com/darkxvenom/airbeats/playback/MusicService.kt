@@ -10,6 +10,7 @@ import android.database.SQLException
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.audiofx.AudioEffect
+import android.media.audiofx.Equalizer
 import android.media.audiofx.LoudnessEnhancer
 import android.net.ConnectivityManager
 import android.os.Binder
@@ -20,6 +21,7 @@ import androidx.core.content.getSystemService
 import androidx.core.net.toUri
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -72,6 +74,7 @@ import com.darkxvenom.airbeats.constants.DisableLoadMoreWhenRepeatAllKey
 import com.darkxvenom.airbeats.constants.DiscordTokenKey
 import com.darkxvenom.airbeats.constants.DiscordUseDetailsKey
 import com.darkxvenom.airbeats.constants.EnableDiscordRPCKey
+import com.darkxvenom.airbeats.constants.EqualizerEnabledKey
 import com.darkxvenom.airbeats.constants.HideExplicitKey
 import com.darkxvenom.airbeats.constants.HistoryDuration
 import com.darkxvenom.airbeats.constants.MediaSessionConstants.CommandToggleLike
@@ -154,6 +157,15 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 
+data class EqualizerUiState(
+    val isAvailable: Boolean = false,
+    val enabled: Boolean = false,
+    val bandLevels: List<Short> = emptyList(),
+    val centerFrequencies: List<Int> = emptyList(),
+    val minBandLevel: Short = -1500,
+    val maxBandLevel: Short = 1500,
+)
+
 @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 @AndroidEntryPoint
 class MusicService :
@@ -220,6 +232,9 @@ class MusicService :
 
     private var isAudioEffectSessionOpened = false
     private var loudnessEnhancer: LoudnessEnhancer? = null
+    private var equalizer: Equalizer? = null
+    private var equalizerSessionId: Int = C.AUDIO_SESSION_ID_UNSET
+    val equalizerState = MutableStateFlow(EqualizerUiState())
 
     private var discordRpc: DiscordRPC? = null
     private var lastPlaybackSpeed = 1.0f
@@ -1013,10 +1028,130 @@ class MusicService :
         }
     }
 
+    private fun equalizerBandKey(index: Int) = intPreferencesKey("equalizerBand$index")
+
+    fun ensureEqualizer() {
+        setupEqualizer()
+    }
+
+    private fun setupEqualizer() {
+        val audioSessionId = player.audioSessionId
+        if (audioSessionId == C.AUDIO_SESSION_ID_UNSET || audioSessionId <= 0) {
+            equalizerState.value = equalizerState.value.copy(isAvailable = false)
+            return
+        }
+
+        if (equalizer != null && equalizerSessionId == audioSessionId) {
+            return
+        }
+
+        releaseEqualizer()
+
+        try {
+            val newEqualizer = Equalizer(0, audioSessionId)
+            val range = newEqualizer.bandLevelRange
+            val enabled = dataStore.get(EqualizerEnabledKey, false)
+            val bandLevels =
+                (0 until newEqualizer.numberOfBands).map { index ->
+                    dataStore
+                        .get(equalizerBandKey(index), 0)
+                        .coerceIn(range[0].toInt(), range[1].toInt())
+                        .toShort()
+                        .also { level ->
+                            newEqualizer.setBandLevel(index.toShort(), level)
+                        }
+                }
+            val frequencies =
+                (0 until newEqualizer.numberOfBands).map { index ->
+                    newEqualizer.getCenterFreq(index.toShort())
+                }
+
+            newEqualizer.enabled = enabled
+            equalizer = newEqualizer
+            equalizerSessionId = audioSessionId
+            equalizerState.value =
+                EqualizerUiState(
+                    isAvailable = true,
+                    enabled = enabled,
+                    bandLevels = bandLevels,
+                    centerFrequencies = frequencies,
+                    minBandLevel = range[0],
+                    maxBandLevel = range[1],
+                )
+        } catch (e: Exception) {
+            reportException(e)
+            equalizerState.value = EqualizerUiState(isAvailable = false)
+        }
+    }
+
+    fun setEqualizerEnabled(enabled: Boolean) {
+        setupEqualizer()
+        try {
+            equalizer?.enabled = enabled
+            equalizerState.value = equalizerState.value.copy(enabled = enabled)
+            scope.launch {
+                dataStore.edit { settings ->
+                    settings[EqualizerEnabledKey] = enabled
+                }
+            }
+        } catch (e: Exception) {
+            reportException(e)
+        }
+    }
+
+    fun setEqualizerBandLevel(
+        index: Int,
+        level: Short,
+    ) {
+        setupEqualizer()
+        val state = equalizerState.value
+        if (index !in state.bandLevels.indices) return
+
+        val clampedLevel =
+            level
+                .coerceIn(state.minBandLevel, state.maxBandLevel)
+        try {
+            equalizer?.setBandLevel(index.toShort(), clampedLevel)
+            equalizerState.value =
+                state.copy(
+                    bandLevels =
+                        state.bandLevels.toMutableList().also {
+                            it[index] = clampedLevel
+                        },
+                )
+            scope.launch {
+                dataStore.edit { settings ->
+                    settings[equalizerBandKey(index)] = clampedLevel.toInt()
+                }
+            }
+        } catch (e: Exception) {
+            reportException(e)
+        }
+    }
+
+    fun resetEqualizer() {
+        setupEqualizer()
+        equalizerState.value.bandLevels.indices.forEach { index ->
+            setEqualizerBandLevel(index, 0)
+        }
+    }
+
+    private fun releaseEqualizer() {
+        try {
+            equalizer?.release()
+        } catch (e: Exception) {
+            reportException(e)
+        } finally {
+            equalizer = null
+            equalizerSessionId = C.AUDIO_SESSION_ID_UNSET
+        }
+    }
+
     private fun openAudioEffectSession() {
         if (isAudioEffectSessionOpened) return
         isAudioEffectSessionOpened = true
         setupLoudnessEnhancer()
+        setupEqualizer()
         sendBroadcast(
             Intent(AudioEffect.ACTION_OPEN_AUDIO_EFFECT_CONTROL_SESSION).apply {
                 putExtra(AudioEffect.EXTRA_AUDIO_SESSION, player.audioSessionId)
@@ -1045,6 +1180,7 @@ class MusicService :
         lastPlaybackSpeed = -1.0f // forzar actualización de canción
 
         setupLoudnessEnhancer()
+        setupEqualizer()
 
         discordUpdateJob?.cancel()
 
@@ -1102,6 +1238,7 @@ class MusicService :
     override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
         if (playWhenReady) {
             setupLoudnessEnhancer()
+            setupEqualizer()
         }
 
         // Actualizar notificación cuando cambia el estado de reproducción
@@ -1566,6 +1703,7 @@ class MusicService :
         discordRpc = null
         abandonAudioFocus()
         releaseLoudnessEnhancer()
+        releaseEqualizer()
         mediaSession.release()
         player.removeListener(this)
         player.removeListener(sleepTimer)

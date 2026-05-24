@@ -1,7 +1,12 @@
 package com.darkxvenom.airbeats.ui.player
 
+import android.content.Context
 import android.content.res.Configuration
 import android.graphics.drawable.BitmapDrawable
+import android.media.AudioDeviceInfo
+import android.media.AudioManager
+import android.media.MediaRouter
+import android.os.Build
 import android.text.format.Formatter
 
 import android.widget.Toast
@@ -1445,23 +1450,21 @@ fun BottomSheetPlayer(
                     }
                 }
 
-                Slider(
-                    value = (sliderPosition ?: position).toFloat(),
-                    valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
-                    onValueChange = {
-                        sliderPosition = it.toLong()
-                    },
-                    onValueChangeFinished = {
-                        sliderPosition?.let {
-                            playerConnection.player.seekTo(it)
-                            position = it
-                        }
-                        sliderPosition = null
-                    },
-                    thumb = { Spacer(modifier = Modifier.size(0.dp)) },
-                    track = { sliderState ->
-                        PlayerSliderTrack(
-                            sliderState = sliderState,
+                when (sliderStyle) {
+                    SliderStyle.DEFAULT -> {
+                        Slider(
+                            value = (sliderPosition ?: position).toFloat(),
+                            valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
+                            onValueChange = {
+                                sliderPosition = it.toLong()
+                            },
+                            onValueChangeFinished = {
+                                sliderPosition?.let {
+                                    playerConnection.player.seekTo(it)
+                                    position = it
+                                }
+                                sliderPosition = null
+                            },
                             colors = PlayerSliderColors.getSliderColors(
                                 textButtonColor = Color.White,
                                 playerBackground = playerBackground,
@@ -1469,7 +1472,61 @@ fun BottomSheetPlayer(
                             )
                         )
                     }
-                )
+
+                    SliderStyle.SQUIGGLY -> {
+                        SquigglySlider(
+                            value = (sliderPosition ?: position).toFloat(),
+                            valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
+                            onValueChange = {
+                                sliderPosition = it.toLong()
+                            },
+                            onValueChangeFinished = {
+                                sliderPosition?.let {
+                                    playerConnection.player.seekTo(it)
+                                    position = it
+                                }
+                                sliderPosition = null
+                            },
+                            colors = PlayerSliderColors.getSliderColors(
+                                textButtonColor = Color.White,
+                                playerBackground = playerBackground,
+                                useDarkTheme = true
+                            ),
+                            squigglesSpec = SquigglySlider.SquigglesSpec(
+                                amplitude = if (isPlaying) (2.dp).coerceAtLeast(2.dp) else 0.dp,
+                                strokeWidth = 3.dp,
+                            ),
+                        )
+                    }
+
+                    SliderStyle.SLIM -> {
+                        Slider(
+                            value = (sliderPosition ?: position).toFloat(),
+                            valueRange = 0f..(if (duration == C.TIME_UNSET) 0f else duration.toFloat()),
+                            onValueChange = {
+                                sliderPosition = it.toLong()
+                            },
+                            onValueChangeFinished = {
+                                sliderPosition?.let {
+                                    playerConnection.player.seekTo(it)
+                                    position = it
+                                }
+                                sliderPosition = null
+                            },
+                            thumb = { Spacer(modifier = Modifier.size(0.dp)) },
+                            track = { sliderState ->
+                                PlayerSliderTrack(
+                                    sliderState = sliderState,
+                                    colors = PlayerSliderColors.getSliderColors(
+                                        textButtonColor = Color.White,
+                                        playerBackground = playerBackground,
+                                        useDarkTheme = true
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
 
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -1658,6 +1715,8 @@ fun BottomSheetPlayer(
         }
 
         if (playerScreenStyle == PlayerScreenStyle.MODERN) {
+            val playbackOutputName = rememberPlaybackOutputName()
+
             Box(modifier = Modifier.fillMaxSize()) {
                 ImmersivePlayerBackdrop(
                     thumbnailUrl = mediaMetadata?.thumbnailUrl,
@@ -1683,8 +1742,9 @@ fun BottomSheetPlayer(
                         onOpenQueue = queueSheetState::expandSoft,
                         onOpenLyrics = onOpenFullscreenLyrics,
                         onDeviceClick = {
-                            Toast.makeText(context, "Speaker", Toast.LENGTH_SHORT).show()
-                        }
+                            Toast.makeText(context, playbackOutputName, Toast.LENGTH_SHORT).show()
+                        },
+                        deviceName = playbackOutputName,
                     )
                 }
             }
@@ -1885,6 +1945,7 @@ private fun ImmersiveBottomActions(
     onOpenQueue: () -> Unit,
     onOpenLyrics: () -> Unit,
     onDeviceClick: () -> Unit,
+    deviceName: String,
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -1928,7 +1989,7 @@ private fun ImmersiveBottomActions(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
-                    text = "Speaker",
+                    text = deviceName,
                     style = MaterialTheme.typography.titleMedium,
                     color = textColor,
                     maxLines = 1,
@@ -1938,6 +1999,89 @@ private fun ImmersiveBottomActions(
         }
     }
 }
+
+@Composable
+private fun rememberPlaybackOutputName(): String {
+    val context = LocalContext.current
+    var outputName by remember { mutableStateOf(resolvePlaybackOutputName(context)) }
+
+    LaunchedEffect(context) {
+        while (isActive) {
+            outputName = resolvePlaybackOutputName(context)
+            delay(2000)
+        }
+    }
+
+    return outputName
+}
+
+@Suppress("DEPRECATION")
+private fun resolvePlaybackOutputName(context: Context): String {
+    val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+    val devices =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            try {
+                audioManager?.getDevices(AudioManager.GET_DEVICES_OUTPUTS).orEmpty()
+            } catch (_: SecurityException) {
+                emptyArray()
+            }
+        } else {
+            emptyArray()
+        }
+
+    devices.firstOrNull { it.isBluetoothOutput() }?.productName?.toString()?.takeIf {
+        it.isNotBlank()
+    }?.let {
+        return it
+    }
+
+    val selectedRouteName =
+        try {
+            val mediaRouter = context.getSystemService(Context.MEDIA_ROUTER_SERVICE) as? MediaRouter
+            mediaRouter
+                ?.getSelectedRoute(MediaRouter.ROUTE_TYPE_LIVE_AUDIO)
+                ?.name
+                ?.toString()
+        } catch (_: Exception) {
+            null
+        }
+
+    selectedRouteName
+        ?.takeIf { it.isNotBlank() && !it.equals("Phone", ignoreCase = true) }
+        ?.let { return it }
+
+    devices.firstOrNull { it.isWiredOutput() }?.productName?.toString()?.takeIf {
+        it.isNotBlank()
+    }?.let {
+        return it
+    }
+
+    devices.firstOrNull { it.isUsbOutput() }?.productName?.toString()?.takeIf {
+        it.isNotBlank()
+    }?.let {
+        return it
+    }
+
+    return "Speaker"
+}
+
+private fun AudioDeviceInfo.isBluetoothOutput(): Boolean =
+    type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP ||
+        type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO ||
+        (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            (type == AudioDeviceInfo.TYPE_BLE_HEADSET ||
+                type == AudioDeviceInfo.TYPE_BLE_SPEAKER ||
+                type == AudioDeviceInfo.TYPE_BLE_BROADCAST))
+
+private fun AudioDeviceInfo.isWiredOutput(): Boolean =
+    type == AudioDeviceInfo.TYPE_WIRED_HEADPHONES ||
+        type == AudioDeviceInfo.TYPE_WIRED_HEADSET ||
+        type == AudioDeviceInfo.TYPE_AUX_LINE
+
+private fun AudioDeviceInfo.isUsbOutput(): Boolean =
+    type == AudioDeviceInfo.TYPE_USB_DEVICE ||
+        type == AudioDeviceInfo.TYPE_USB_HEADSET ||
+        type == AudioDeviceInfo.TYPE_DOCK
 
 @Composable
 private fun ImmersiveCircleButton(

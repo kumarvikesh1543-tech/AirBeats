@@ -78,6 +78,9 @@ fun NavGraphBuilder.navigationBuilder(
     composable("insight") {
         InsightScreen(navController)
     }
+    composable("listen_together") {
+        ListenTogetherScreen(navController, scrollBehavior)
+    }
 
 
 
