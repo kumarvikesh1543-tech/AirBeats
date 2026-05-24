@@ -18,11 +18,17 @@ val DefaultOpenTabKey = stringPreferencesKey("defaultOpenTab")
 val SlimNavBarKey = booleanPreferencesKey("slimNavBar")
 val GridItemsSizeKey = stringPreferencesKey("gridItemSize")
 val SliderStyleKey = stringPreferencesKey("sliderStyle")
+val PlayerScreenStyleKey = stringPreferencesKey("playerScreenStyle")
 
 enum class SliderStyle {
     DEFAULT,
     SQUIGGLY,
     SLIM,
+}
+
+enum class PlayerScreenStyle {
+    CLASSIC,
+    MODERN,
 }
 
 const val SYSTEM_DEFAULT = "SYSTEM_DEFAULT"

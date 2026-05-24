@@ -79,6 +79,11 @@ fun AppearanceSettings(
             PlayerBackgroundStyleKey,
             defaultValue = PlayerBackgroundStyle.DEFAULT,
         )
+    val (playerScreenStyle, onPlayerScreenStyleChange) =
+        rememberEnumPreference(
+            PlayerScreenStyleKey,
+            defaultValue = PlayerScreenStyle.CLASSIC,
+        )
     val (pureBlack, onPureBlackChange) = rememberPreference(PureBlackKey, defaultValue = false)
     val (defaultOpenTab, onDefaultOpenTabChange) = rememberEnumPreference(
         DefaultOpenTabKey,
@@ -482,6 +487,19 @@ fun AppearanceSettings(
                 SettingsGeneralCategory(
                     title = stringResource(R.string.player),
                     items = listOf(
+                        {EnumListPreference(
+                            title = { Text(stringResource(R.string.player_screen_style)) },
+                            icon = { Icon(painterResource(R.drawable.palette), null) },
+                            selectedValue = playerScreenStyle,
+                            onValueSelected = onPlayerScreenStyleChange,
+                            valueText = {
+                                when (it) {
+                                    PlayerScreenStyle.CLASSIC -> stringResource(R.string.classic_player)
+                                    PlayerScreenStyle.MODERN -> stringResource(R.string.modern_player)
+                                }
+                            },
+                        )},
+
                         {EnumListPreference(
                             title = { Text(stringResource(R.string.player_background_style)) },
                             icon = { Icon(painterResource(R.drawable.gradient), null) },
