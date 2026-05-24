@@ -5,17 +5,22 @@ fun String.resize(
     height: Int? = null,
 ): String {
     if (width == null && height == null) return this
-    "https://lh3\\.googleusercontent\\.com/.*=w(\\d+)-h(\\d+).*".toRegex()
-        .matchEntire(this)?.groupValues?.let { group ->
-            val (W, H) = group.drop(1).map { it.toInt() }
-            var w = width
-            var h = height
-            if (w != null && h == null) h = (w / W) * H
-            if (w == null && h != null) w = (h / H) * W
-            return "${split("=w")[0]}=w$w-h$h-p-l90-rj"
+    val w = width ?: height ?: 544
+    val h = height ?: width ?: 544
+
+    if (this.contains("googleusercontent.com") || this.contains("ggpht.com")) {
+        if (this.contains(Regex("=w\\d+-h\\d+"))) {
+            return this.replace(Regex("=w\\d+-h\\d+.*"), "=w$w-h$h-p-l90-rj")
+        } else if (this.contains(Regex("=s\\d+"))) {
+            return this.replace(Regex("=s\\d+.*"), "=s$w")
         }
-    if (this matches "https://yt3\\.ggpht\\.com/.*=s(\\d+)".toRegex()) {
-        return "$this-s${width ?: height}"
     }
+
+    if (this.contains("ytimg.com")) {
+        if (this.endsWith("/default.jpg") || this.endsWith("/hqdefault.jpg") || this.endsWith("/mqdefault.jpg") || this.endsWith("/sddefault.jpg")) {
+            return this.substringBeforeLast("/") + "/hqdefault.jpg"
+        }
+    }
+
     return this
 }
