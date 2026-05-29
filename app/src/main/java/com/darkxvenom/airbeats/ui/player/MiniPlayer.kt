@@ -62,6 +62,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -433,9 +434,16 @@ fun MiniPlayer(
 
                     Spacer(modifier = Modifier.width(8.dp))
 
+                    val likeScale by animateFloatAsState(
+                        targetValue = if (currentSong?.song?.liked == true) 1.15f else 1f,
+                        label = "likeScale"
+                    )
+
                     IconButton(
                         onClick = { playerConnection.toggleLike() },
-                        modifier = Modifier.size(36.dp)
+                        modifier = Modifier
+                            .size(36.dp)
+                            .scale(likeScale)
                     ) {
                         Icon(
                             painter = painterResource(
