@@ -8,6 +8,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
@@ -434,6 +435,15 @@ fun MiniPlayer(
 
                     Spacer(modifier = Modifier.width(8.dp))
 
+                    val favoriteTint by animateColorAsState(
+                        targetValue = if (currentSong?.song?.liked == true) {
+                            MaterialTheme.colorScheme.error
+                        } else {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        },
+                        label = "favoriteTint"
+                    )
+
                     val likeScale = remember { Animatable(1f) }
 
                     IconButton(
@@ -463,11 +473,7 @@ fun MiniPlayer(
                                 if (currentSong?.song?.liked == true) R.drawable.favorite else R.drawable.favorite_border
                             ),
                             contentDescription = if (currentSong?.song?.liked == true) "Unlike" else "Like",
-                            tint = if (currentSong?.song?.liked == true) {
-                                MaterialTheme.colorScheme.error
-                            } else {
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                            },
+                            tint = favoriteTint,
                             modifier = Modifier.size(18.dp)
                         )
                     }
