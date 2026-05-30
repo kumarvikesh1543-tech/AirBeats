@@ -529,7 +529,14 @@ fun MiniPlayer(
                     tint = MaterialTheme.colorScheme.primary.copy(
                         alpha = (offsetXAnimatable.value.absoluteValue / autoSwipeThreshold).coerceIn(0f, 1f)
                     ),
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(24.dp)
+                        .scale(
+                            0.8f + (
+                                offsetXAnimatable.value.absoluteValue /
+                                autoSwipeThreshold.toFloat()
+                            ).coerceIn(0f, 1f) * 0.4f
+                        )
                 )
             }
         }
