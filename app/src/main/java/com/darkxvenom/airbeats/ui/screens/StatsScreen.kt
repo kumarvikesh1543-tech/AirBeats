@@ -95,6 +95,8 @@ import com.darkxvenom.airbeats.utils.makeTimeString
 import com.darkxvenom.airbeats.utils.GlobalStatsUser
 import com.darkxvenom.airbeats.viewmodels.GlobalStatsUiState
 import com.darkxvenom.airbeats.viewmodels.StatsViewModel
+import com.darkxvenom.airbeats.ui.component.RankBadge
+import com.darkxvenom.airbeats.ui.component.AirBeatsRank
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -763,15 +765,25 @@ private fun GlobalUserRankRow(
         )
         ProfileBubble(user.profileUrl, user.name)
         Spacer(modifier = Modifier.width(10.dp))
-        Text(
-            text = user.name,
+        Row(
             modifier = Modifier.weight(1f),
-            color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            fontWeight = if (isCurrentUser) FontWeight.Black else FontWeight.SemiBold,
-            style = MaterialTheme.typography.bodyMedium,
-        )
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = user.name,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                fontWeight = if (isCurrentUser) FontWeight.Black else FontWeight.SemiBold,
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            val userHours = user.totalListenMs.toDouble() / (3600.0 * 1000.0)
+            val userRank = if (userHours >= 1.0) AirBeatsRank.fromHours(userHours.toInt()) else null
+            userRank?.let { rank ->
+                Spacer(modifier = Modifier.width(6.dp))
+                RankBadge(rank = rank, displayedRank = null, size = 18.dp)
+            }
+        }
         Text(
             text = formatListenHours(user.totalListenMs),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -844,13 +856,23 @@ private fun WeeklyGlobalStatsSheet(
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Black,
                             )
-                            Text(
-                                text = user.name,
+                            Row(
                                 modifier = Modifier.weight(1f),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                fontWeight = FontWeight.Bold,
-                            )
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = user.name,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                                val userHours = user.totalListenMs.toDouble() / (3600.0 * 1000.0)
+                                val userRank = if (userHours >= 1.0) AirBeatsRank.fromHours(userHours.toInt()) else null
+                                userRank?.let { rank ->
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    RankBadge(rank = rank, displayedRank = null, size = 18.dp)
+                                }
+                            }
                             Text(
                                 text = formatListenHours(user.weeklyListenMs.takeIf { it > 0 } ?: user.totalListenMs),
                                 fontWeight = FontWeight.Black,

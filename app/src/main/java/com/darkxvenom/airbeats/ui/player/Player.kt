@@ -1895,6 +1895,93 @@ fun BottomSheetPlayer(
                 },
                 currentLyrics = currentLyrics,
                 database = database,
+                gradientColors = gradientColors,
+            )
+        } else if (playerScreenStyle == PlayerScreenStyle.CLOUDGLOW) {
+            CloudGlowPlayer(
+                mediaMetadata = mediaMetadata,
+                position = sliderPosition ?: position,
+                duration = duration,
+                isPlaying = isPlaying,
+                isLoading = playbackState != STATE_READY && playbackState != STATE_ENDED,
+                canSkipPrevious = canSkipPrevious,
+                canSkipNext = canSkipNext,
+                repeatMode = repeatMode,
+                shuffleModeEnabled = shuffleModeEnabled,
+                onSeek = { sliderPosition = it },
+                onSeekFinished = {
+                    sliderPosition?.let(playerConnection.player::seekTo)
+                    sliderPosition = null
+                },
+                onPlayPause = playerConnection.player::togglePlayPause,
+                onPrevious = playerConnection.player::seekToPrevious,
+                onNext = playerConnection::seekToNext,
+                onShuffle = { playerConnection.player.shuffleModeEnabled = !playerConnection.player.shuffleModeEnabled },
+                onRepeat = playerConnection.player::toggleRepeatMode,
+                onOpenLyrics = onOpenFullscreenLyrics,
+                onOpenQueue = queueSheetState::expandSoft,
+                onCollapse = state::collapseSoft,
+                onOpenArtist = { artistId ->
+                    navController.navigate("artist/$artistId")
+                    state.collapseSoft()
+                },
+                onOpenMenu = {
+                    menuState.show {
+                        PlayerMenu(
+                            mediaMetadata = mediaMetadata ?: return@show,
+                            navController = navController,
+                            playerBottomSheetState = state,
+                            onShowDetailsDialog = { showDetailsDialog = true },
+                            onDismiss = menuState::dismiss,
+                        )
+                    }
+                },
+                currentLyrics = spotifyLyricsEntity,
+                database = database,
+                gradientColors = gradientColors,
+            )
+        } else if (playerScreenStyle == PlayerScreenStyle.FROST) {
+            FrostPlayer(
+                mediaMetadata = mediaMetadata,
+                position = sliderPosition ?: position,
+                duration = duration,
+                isPlaying = isPlaying,
+                isLoading = playbackState != STATE_READY && playbackState != STATE_ENDED,
+                canSkipPrevious = canSkipPrevious,
+                canSkipNext = canSkipNext,
+                repeatMode = repeatMode,
+                shuffleModeEnabled = shuffleModeEnabled,
+                onSeek = { sliderPosition = it },
+                onSeekFinished = {
+                    sliderPosition?.let(playerConnection.player::seekTo)
+                    sliderPosition = null
+                },
+                onPlayPause = playerConnection.player::togglePlayPause,
+                onPrevious = playerConnection.player::seekToPrevious,
+                onNext = playerConnection::seekToNext,
+                onShuffle = { playerConnection.player.shuffleModeEnabled = !playerConnection.player.shuffleModeEnabled },
+                onRepeat = playerConnection.player::toggleRepeatMode,
+                onOpenLyrics = onOpenFullscreenLyrics,
+                onOpenQueue = queueSheetState::expandSoft,
+                onCollapse = state::collapseSoft,
+                onOpenArtist = { artistId ->
+                    navController.navigate("artist/$artistId")
+                    state.collapseSoft()
+                },
+                onOpenMenu = {
+                    menuState.show {
+                        PlayerMenu(
+                            mediaMetadata = mediaMetadata ?: return@show,
+                            navController = navController,
+                            playerBottomSheetState = state,
+                            onShowDetailsDialog = { showDetailsDialog = true },
+                            onDismiss = menuState::dismiss,
+                        )
+                    }
+                },
+                currentLyrics = spotifyLyricsEntity,
+                database = database,
+                gradientColors = gradientColors,
             )
         } else if (playerScreenStyle == PlayerScreenStyle.SPOTIFY) {
             Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
@@ -2981,7 +3068,7 @@ private fun ImmersiveBottomActions(
 }
 
 @Composable
-private fun rememberPlaybackOutputName(): String {
+internal fun rememberPlaybackOutputName(): String {
     val context = LocalContext.current
     var outputName by remember { mutableStateOf(resolvePlaybackOutputName(context)) }
 
@@ -3163,6 +3250,7 @@ fun LiquidPlayer(
     currentLyrics: LyricsEntity?,
     database: MusicDatabase,
     dynamicColor: Color? = null,
+    gradientColors: List<Color> = emptyList(),
 ) {
     FuturisticPlayer(
         mediaMetadata = mediaMetadata,
@@ -3185,7 +3273,63 @@ fun LiquidPlayer(
         onOpenQueue = onOpenQueue,
         onCollapse = onCollapse,
         onOpenMenu = onOpenMenu,
-        dynamicColor = dynamicColor
+        dynamicColor = dynamicColor,
+        gradientColors = gradientColors
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CloudGlowPlayer(
+    mediaMetadata: MediaMetadata?,
+    position: Long,
+    duration: Long,
+    isPlaying: Boolean,
+    isLoading: Boolean,
+    canSkipPrevious: Boolean,
+    canSkipNext: Boolean,
+    repeatMode: Int,
+    shuffleModeEnabled: Boolean,
+    onSeek: (Long) -> Unit,
+    onSeekFinished: () -> Unit,
+    onPlayPause: () -> Unit,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit,
+    onShuffle: () -> Unit,
+    onRepeat: () -> Unit,
+    onOpenLyrics: () -> Unit,
+    onOpenQueue: () -> Unit,
+    onCollapse: () -> Unit,
+    onOpenArtist: (String) -> Unit,
+    onOpenMenu: () -> Unit,
+    currentLyrics: LyricsEntity?,
+    database: MusicDatabase,
+    dynamicColor: Color? = null,
+    gradientColors: List<Color> = emptyList(),
+) {
+    CloudGlowPlayerScreen(
+        mediaMetadata = mediaMetadata,
+        position = position,
+        duration = duration,
+        isPlaying = isPlaying,
+        isLoading = isLoading,
+        canSkipPrevious = canSkipPrevious,
+        canSkipNext = canSkipNext,
+        repeatMode = repeatMode,
+        shuffleModeEnabled = shuffleModeEnabled,
+        onSeek = onSeek,
+        onSeekFinished = onSeekFinished,
+        onPlayPause = onPlayPause,
+        onPrevious = onPrevious,
+        onNext = onNext,
+        onShuffle = onShuffle,
+        onRepeat = onRepeat,
+        onOpenLyrics = onOpenLyrics,
+        onOpenQueue = onOpenQueue,
+        onCollapse = onCollapse,
+        onOpenMenu = onOpenMenu,
+        dynamicColor = dynamicColor,
+        gradientColors = gradientColors
     )
 }
 

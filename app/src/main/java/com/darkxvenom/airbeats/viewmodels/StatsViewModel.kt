@@ -34,6 +34,9 @@ import java.util.Locale
 import java.util.UUID
 import javax.inject.Inject
 
+import kotlinx.coroutines.flow.Flow
+import com.darkxvenom.airbeats.ui.component.AirBeatsRank
+
 data class GlobalStatsUiState(
     val isLoading: Boolean = true,
     val board: GlobalStatsBoard = GlobalStatsBoard(),
@@ -53,6 +56,16 @@ constructor(
     val selectedOption = MutableStateFlow(OptionStats.CONTINUOUS)
     val indexChips = MutableStateFlow(0)
     val globalStats = MutableStateFlow(GlobalStatsUiState())
+
+    val totalListenHours: Flow<Double> = database.mostPlayedSongsStats(0L, limit = -1, toTimeStamp = Long.MAX_VALUE)
+        .map { songs ->
+            val totalMs = songs.sumOf { it.timeListened?.toLong() ?: 0L }
+            totalMs.toDouble() / (3600.0 * 1000.0)
+        }
+
+    val currentRank: Flow<AirBeatsRank?> = totalListenHours.map { hours ->
+        if (hours >= 1.0) AirBeatsRank.fromHours(hours.toInt()) else null
+    }
 
     private val cloudClient = AirBeatsStatsCloudClient()
     private val statsPreferences =

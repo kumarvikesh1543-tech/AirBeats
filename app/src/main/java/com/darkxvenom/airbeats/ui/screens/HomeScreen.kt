@@ -163,6 +163,13 @@ import androidx.core.net.toUri
 import com.darkxvenom.airbeats.ui.component.LocalUserName
 import com.darkxvenom.airbeats.ui.component.AvatarPreferenceManager
 import com.darkxvenom.airbeats.ui.component.AvatarSelection
+import com.darkxvenom.airbeats.ui.component.RankPreferenceManager
+import com.darkxvenom.airbeats.ui.component.RankBadge
+import com.darkxvenom.airbeats.ui.component.BadgeSelector
+import com.darkxvenom.airbeats.ui.component.unlockedRanksFromHours
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.darkxvenom.airbeats.viewmodels.StatsViewModel
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
@@ -1150,6 +1157,39 @@ fun ModernHomeTopBarInline(
                     )
                 )
             )
+
+            val context = LocalContext.current
+            val rankPrefMgr = remember { RankPreferenceManager(context) }
+            val displayedRank by rankPrefMgr.displayedRank.collectAsState(initial = null)
+            val viewModel = hiltViewModel<StatsViewModel>()
+            val currentRank by viewModel.currentRank.collectAsState(initial = null)
+            val totalHours by viewModel.totalListenHours.collectAsState(initial = 0.0)
+            val coroutineScope = rememberCoroutineScope()
+
+            currentRank?.let { rank ->
+                Spacer(modifier = Modifier.width(8.dp))
+                var showBadgeSelector by remember { mutableStateOf(false) }
+                RankBadge(
+                    rank = rank,
+                    displayedRank = displayedRank,
+                    size = 28.dp,
+                    modifier = Modifier.clickable { showBadgeSelector = true }
+                )
+                if (showBadgeSelector) {
+                    val unlocked = unlockedRanksFromHours(totalHours)
+                    BadgeSelector(
+                        unlockedRanks = unlocked,
+                        currentDisplayed = displayedRank,
+                        onSelect = { selectedRank ->
+                            coroutineScope.launch {
+                                rankPrefMgr.saveDisplayedRank(selectedRank)
+                            }
+                            showBadgeSelector = false
+                        },
+                        onDismiss = { showBadgeSelector = false }
+                    )
+                }
+            }
         }
     }
 }

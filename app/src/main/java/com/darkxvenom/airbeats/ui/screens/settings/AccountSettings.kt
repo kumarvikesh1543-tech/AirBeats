@@ -240,6 +240,17 @@ fun AccountSettings(
                     AvatarSelector(modifier = Modifier.padding(vertical = 8.dp))
                 }
 
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // 🔥 RANK BADGE SELECTOR
+                GlassCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                ) {
+                    RankBadgeSelector(modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp))
+                }
+
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }

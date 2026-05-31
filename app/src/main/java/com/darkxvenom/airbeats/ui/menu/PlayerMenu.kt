@@ -955,7 +955,7 @@ private fun ListenTogetherStatusCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun InAppEqualizerSheet(onDismiss: () -> Unit) {
+internal fun InAppEqualizerSheet(onDismiss: () -> Unit) {
     val playerConnection = LocalPlayerConnection.current ?: return
     val equalizerState by playerConnection.service.equalizerState.collectAsState()
 

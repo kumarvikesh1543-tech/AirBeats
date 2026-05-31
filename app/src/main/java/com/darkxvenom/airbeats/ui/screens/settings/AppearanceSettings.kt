@@ -523,6 +523,8 @@ fun AppearanceSettings(
                                     PlayerScreenStyle.MODERN -> stringResource(R.string.modern_player)
                                     PlayerScreenStyle.SPOTIFY -> stringResource(R.string.spotify_player)
                                     PlayerScreenStyle.LIQUID -> stringResource(R.string.liquid_player)
+                                    PlayerScreenStyle.CLOUDGLOW -> "CloudGlow"
+                                    PlayerScreenStyle.FROST -> "Frost"
                                 }
                             },
                         )},

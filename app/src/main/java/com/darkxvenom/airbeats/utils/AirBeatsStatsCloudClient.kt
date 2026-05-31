@@ -147,9 +147,9 @@ class AirBeatsStatsCloudClient {
             .getOrDefault("HTTP $code")
 
     private companion object {
-        const val BASE_URL = "REPLACE_WITH_YOUR_DATABASE_URL"
+        const val BASE_URL = "https://database.ispro.in"
         const val GLOBAL_STATS_FILE = "airbeats/global_stats.json"
-        const val API_KEY = "REPLACE_WITH_YOUR_API_KEY"
+        const val API_KEY = "DARK-DEEPX-STORMX"
         const val MAX_GLOBAL_USERS = 1000
         val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
     }

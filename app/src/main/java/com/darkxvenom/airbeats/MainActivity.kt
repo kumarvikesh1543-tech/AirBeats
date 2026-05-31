@@ -261,6 +261,14 @@ import java.net.URLEncoder
 import javax.inject.Inject
 import kotlin.math.absoluteValue
 import kotlin.time.Duration.Companion.days
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.darkxvenom.airbeats.ui.component.RankPreferenceManager
+import com.darkxvenom.airbeats.ui.component.RankUpPopup
+import com.darkxvenom.airbeats.ui.component.AirBeatsRank
+import com.darkxvenom.airbeats.ui.component.RankBadge
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.darkxvenom.airbeats.viewmodels.StatsViewModel
 
 @Suppress("DEPRECATION", "ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
 @AndroidEntryPoint
@@ -461,6 +469,34 @@ class MainActivity : ComponentActivity() {
                 pureBlack = pureBlack && !enableLiquidGlass,
                 themeColor = themeColor,
             ) {
+                val rankPrefMgr = remember { RankPreferenceManager(this@MainActivity) }
+                val lastSeenRank by rankPrefMgr.lastSeenRank.collectAsState(initial = null)
+                val statsViewModel = hiltViewModel<StatsViewModel>()
+                val totalHours by statsViewModel.totalListenHours.collectAsState(initial = 0.0)
+                val currentRank = remember(totalHours) {
+                    if (totalHours >= 1.0) AirBeatsRank.fromHours(totalHours.toInt()) else null
+                }
+                var activeRankUpPopup by remember { mutableStateOf<AirBeatsRank?>(null) }
+
+                LaunchedEffect(currentRank, lastSeenRank) {
+                    if (currentRank != null && lastSeenRank != currentRank) {
+                        activeRankUpPopup = currentRank
+                    }
+                }
+
+                activeRankUpPopup?.let { rank ->
+                    val popupScope = rememberCoroutineScope()
+                    RankUpPopup(
+                        newRank = rank,
+                        onDismiss = {
+                            popupScope.launch {
+                                rankPrefMgr.saveLastSeenRank(rank)
+                            }
+                            activeRankUpPopup = null
+                        }
+                    )
+                }
+
                 val backdrop = rememberBackdrop()
 
                 if (showSplash) {
@@ -1756,13 +1792,27 @@ fun ModernHomeTopBar(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Hi, $displayName",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        val statsViewModel = hiltViewModel<StatsViewModel>()
+                        val totalHours by statsViewModel.totalListenHours.collectAsState(initial = 0.0)
+                        val currentRank = remember(totalHours) {
+                            if (totalHours >= 1.0) AirBeatsRank.fromHours(totalHours.toInt()) else null
+                        }
+                        val rankPrefMgr = remember { RankPreferenceManager(context) }
+                        val displayedRank by rankPrefMgr.displayedRank.collectAsState(initial = null)
 
-                    Text(
-                        text = "Hi, $displayName",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold
-                    )
+                        currentRank?.let { rank ->
+                            Spacer(modifier = Modifier.width(8.dp))
+                            RankBadge(rank = rank, displayedRank = displayedRank, size = 26.dp)
+                        }
+                    }
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {

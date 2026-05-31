@@ -89,3 +89,8 @@ lint/tmp/
 app/release
 output-metadata.json
 /app/google-services.json
+
+# Databases
+*.db
+*.db-journal
+*.sqlite
