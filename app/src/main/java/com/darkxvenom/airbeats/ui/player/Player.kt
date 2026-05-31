@@ -60,6 +60,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -2519,11 +2521,11 @@ private fun SpotifyLyricsPreviewCard(
     val activeLineIndex = remember(lyricEntries, position) {
         lyricEntries.indexOfLast { it.time <= position }.coerceAtLeast(0)
     }
-    val previewLines = remember(lyricEntries, activeLineIndex) {
-        if (lyricEntries.isEmpty()) {
-            emptyList()
-        } else {
-            lyricEntries.drop(activeLineIndex.coerceAtMost(lyricEntries.lastIndex)).take(4)
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(activeLineIndex, lyricEntries.size) {
+        if (lyricEntries.isNotEmpty()) {
+            listState.animateScrollToItem(activeLineIndex.coerceAtMost(lyricEntries.lastIndex))
         }
     }
 
@@ -2553,7 +2555,7 @@ private fun SpotifyLyricsPreviewCard(
 
             Spacer(Modifier.height(26.dp))
 
-            if (previewLines.isEmpty()) {
+            if (lyricEntries.isEmpty()) {
                 Text(
                     text = stringResource(R.string.lyrics_not_found),
                     style = MaterialTheme.typography.headlineSmall,
@@ -2563,21 +2565,43 @@ private fun SpotifyLyricsPreviewCard(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(bottom = 20.dp),
                 )
-            }
-            previewLines.forEachIndexed { index, line ->
-                Text(
-                    text = line.text,
-                    style = MaterialTheme.typography.headlineMedium.copy(fontFamily = SpotifyFontFamily, fontSize = 20.sp, fontWeight = FontWeight.Bold),
-                    color = Color.White.copy(alpha = if (index == 0) 1f else 0.34f),
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(bottom = 20.dp),
-                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                ) {
+                    LazyColumn(
+                        state = listState,
+                        userScrollEnabled = false,
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(lyricEntries.size) { index ->
+                            val isCurrent = index == activeLineIndex
+                            val isPast = index < activeLineIndex
+                            Text(
+                                text = lyricEntries[index].text,
+                                style = MaterialTheme.typography.headlineMedium.copy(fontFamily = SpotifyFontFamily, fontSize = 20.sp, fontWeight = FontWeight.Bold),
+                                color = when {
+                                    isCurrent -> Color.White
+                                    isPast -> Color.White.copy(alpha = 0.5f)
+                                    else -> Color.White.copy(alpha = 0.25f)
+                                },
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
+                        item {
+                            Spacer(Modifier.height(150.dp))
+                        }
+                    }
+                }
             }
 
             Spacer(Modifier.height(18.dp))
             Text(
-                text = if (previewLines.isEmpty()) "" else "Line Synced\nLyrics provided by LRCLIB",
+                text = if (lyricEntries.isEmpty()) "" else "Line Synced\nLyrics provided by LRCLIB",
                 style = MaterialTheme.typography.bodyMedium.copy(fontFamily = SpotifyFontFamily, fontSize = 13.sp, fontWeight = FontWeight.Normal),
                 color = Color.White.copy(alpha = 0.68f),
                 modifier = Modifier.align(Alignment.End),
