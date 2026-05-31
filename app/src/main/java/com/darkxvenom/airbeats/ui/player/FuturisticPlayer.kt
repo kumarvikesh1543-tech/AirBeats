@@ -15,11 +15,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -80,10 +84,78 @@ fun FuturisticPlayer(
                 }
             }
     ) {
-        // Atmospheric Ambient Background Glow
+        // Immersive Fullscreen Album Backdrop (above sharp, below blurred)
+        val artworkUrl = mediaMetadata?.thumbnailUrl?.highQualityThumbnail()
+        if (artworkUrl != null) {
+            Box(Modifier.fillMaxSize()) {
+                // Sharp base layer
+                AsyncImage(
+                    model = artworkUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            scaleX = 1.06f
+                            scaleY = 1.06f
+                            alpha = 0.65f
+                        }
+                )
+
+                // Blurred bottom layer masked with vertical gradient
+                AsyncImage(
+                    model = artworkUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .blur(90.dp)
+                        .graphicsLayer {
+                            compositingStrategy = CompositingStrategy.Offscreen
+                        }
+                        .drawWithCache {
+                            val blurMask = Brush.verticalGradient(
+                                colorStops = arrayOf(
+                                    0f to Color.Transparent,
+                                    0.46f to Color.Transparent,
+                                    0.58f to Color.Black.copy(alpha = 0.6f),
+                                    0.72f to Color.Black,
+                                    1f to Color.Black,
+                                )
+                            )
+
+                            onDrawWithContent {
+                                drawContent()
+                                drawRect(
+                                    brush = blurMask,
+                                    blendMode = BlendMode.DstIn,
+                                )
+                            }
+                        }
+                )
+            }
+        }
+
+        // Dark atmospheric overlay gradients to make text and circular controls stand out
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colorStops = arrayOf(
+                            0f to Color.Black.copy(alpha = 0.22f),
+                            0.34f to Color.Transparent,
+                            0.64f to Color.Black.copy(alpha = 0.35f),
+                            1f to Color.Black
+                        )
+                    )
+                )
+        )
+
+        // Atmospheric Ambient Background Glow (overlaid with alpha)
         AtmosphericBackground(
             dynamicColor = dynamicColor,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize().alpha(0.82f)
         )
 
         Column(
@@ -143,49 +215,10 @@ fun FuturisticPlayer(
                 }
             }
 
-            Spacer(Modifier.height(12.dp))
+            // Big spacer to push the curved song carousel to the middle
+            Spacer(Modifier.weight(1.2f))
 
-            // MONOCHROME CINEMATIC ALBUM ART SECTION
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.82f)
-                    .fillMaxHeight(0.42f)
-                    .clip(RoundedCornerShape(32.dp))
-            ) {
-                // Monochrome cinematic desaturated image
-                val colorMatrix = remember {
-                    ColorMatrix().apply { setToSaturation(0.12f) }
-                }
-                
-                AsyncImage(
-                    model = mediaMetadata?.thumbnailUrl?.highQualityThumbnail(),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    colorFilter = ColorFilter.colorMatrix(colorMatrix),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .graphicsLayer { alpha = 0.92f }
-                )
-
-                // Fading atmospheric vertical gradient overlay (transparent to black at the bottom)
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    Color(0xFF050505).copy(alpha = 0.85f),
-                                    Color(0xFF050505)
-                                )
-                            )
-                        )
-                )
-            }
-
-            Spacer(Modifier.weight(1f))
-
-            // CURVED SONG CAROUSEL
+            // CURVED SONG CAROUSEL (now sits beautifully in the middle-upper part of the screen)
             RadialSongCarousel(
                 queueWindows = queueWindows,
                 currentWindowIndex = currentWindowIndex,
@@ -196,9 +229,9 @@ fun FuturisticPlayer(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(Modifier.height(18.dp))
+            Spacer(Modifier.weight(0.8f))
 
-            // ARC PROGRESS & CORE WHEEL SECTION
+            // ARC PROGRESS & CORE WHEEL SECTION (sits at the bottom)
             Box(
                 modifier = Modifier
                     .size(280.dp),
